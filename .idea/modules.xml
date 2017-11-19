@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/PapersExplorer.iml" filepath="$PROJECT_DIR$/PapersExplorer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Personal-Papers-Explorer.iml" filepath="$PROJECT_DIR$/Personal-Papers-Explorer.iml" />
     </modules>
   </component>
 </project>
