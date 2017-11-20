@@ -1,0 +1,29 @@
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+
+div.panel:hover{
+    background-color: darkgrey;
+}
+div.panel-body:hover{
+    color: white;
+}
+div.panel-footer:hover{
+    color: black;
+}
+
+form.comment_reply {
+    display: none;
+}
