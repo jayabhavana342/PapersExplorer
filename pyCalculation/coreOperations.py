@@ -1,9 +1,11 @@
 import os
 import sys
+import shutil, errno
 from settings import *
 
 operation = sys.argv[1]
 coreName = sys.argv[2]
+
 
 # operation = 'create'
 # operation = 'delete'
@@ -11,9 +13,17 @@ coreName = sys.argv[2]
 
 def coreOperations(operation, coreName):
     if operation == 'create':
-        # create command
-        command = fullPathToSolrBinFolder + " " + operation + " -c " + coreName
-        result = os.system(command)
+
+        try:
+            shutil.copytree(fullPathToSolrServerFolder + "configsets/basic_configs/conf",
+                            fullPathToSolrServerFolder + coreName + "/conf")
+        except OSError as exc:  # python >2.5
+            if exc.errno == errno.ENOTDIR:
+                shutil.copy(src, dst)
+            else:
+                raise
+
+        run_curl("curl \"" + importQuery + "admin/cores?action=CREATE&name=" + coreName + "\"")
 
         # timestamp,abstract,author,annotation,summary,references,title
         run_curl("curl -X POST -H 'Content-type:application/json' --data-binary \"{"
@@ -27,11 +37,9 @@ def coreOperations(operation, coreName):
                  "{\"name\":\"title\",\"type\":\"string\",\"indexed\":true,\"stored\":true,\"docValues\":true}"
                  "]}\" " + importQuery + coreName + "/schema  ")
 
-        return result
-
     elif operation == 'delete':
-        #delete command
-        command = fullPathToSolrBinFolder + " " + operation + " -c " + coreName
-        return os.system(command)
+        run_curl("curl \"" +
+                 importQuery + "admin/cores?action=UNLOAD&core=" + coreName + "&deleteIndex=true&deleteDataDir=true&deleteInstanceDir=true\"")
 
-print coreOperations(operation, coreName)
+
+coreOperations(operation, coreName)
