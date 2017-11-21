@@ -1,5 +1,3 @@
-import os
-import sys
 import shutil, errno
 from settings import *
 
