@@ -5,7 +5,7 @@ import subprocess
 importQuery = 'http://localhost:8983/solr/'
 fullPathToSolrBinFolder = "C:/solr-7.1.0/bin/solr/"
 fullPathToSolrServerFolder = "C:/solr-7.1.0/server/solr/"
-pathToResearchPapersFolder = "./ResearchPapers/"
+pathToResearchPapersFolder = "../ResearchPapers/"
 
 
 def run_curl(curl_cmd):

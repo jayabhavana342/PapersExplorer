@@ -6,12 +6,12 @@ import json
 
 from settings import *
 
-query = sys.argv[1]
-# query = 'Band.pdf'
-department = sys.argv[2]
+# query = sys.argv[1]
+query = 'Band.pdf'
+# department = sys.argv[2]
 
 
-# department = 'test'
+department = 'test'
 
 
 def findall(data, match):
@@ -120,102 +120,108 @@ def addDocument(directory, filename, core):
         print 'started'
         f = urllib2.urlopen(req)
         # xml_command = 'curl -v --form input=@../ResearchPapers/Band.pdf http://cloud.science-miner.com/grobid/processFulltextDocument'
-        xml_command = 'curl -v --form input=@' + pathToResearchPapersFolder + core + '/' + filename + ' http://cloud.science-miner.com/grobid/processFulltextDocument'
+        xml_command = 'curl -v --form input=@' + pathToResearchPapersFolder + core + '/' + filename + ' localhost:8070/api/processFulltextDocument'
         # xml_command = 'curl -v --form input=@' + pathToResearchPapersFolder  + '/' + filename + ' http://cloud.science-miner.com/grobid/processFulltextDocument'
         # print xml_command
         p = subprocess.Popen(xml_command, shell=True, stdout=subprocess.PIPE)
         text, err = p.communicate()
-        # print text
-        root = xmltodict.parse(text)
-        jsonData = json.dumps(root, indent=2)
-        # print jsonData
-        jsonData = json.loads(jsonData)
-        print 'Title:'
-        print '----------'
-        title = findall(jsonData['TEI']['teiHeader']['fileDesc']['sourceDesc'], 'title')
-        print title
-        print type(title)
-        # title = convert(title)
-        # if isinstance(title, dict):
-        #     title = getTitleData(title)
-        # elif isinstance(title, list):
-        #     title = getTitleData(title[0])
-        # print title
-        print "title:"
-
-        title = convertASCIItoStr(title)
-        print title
-        print type(title)
-        # title = title.replace(" ", "%20")
-
-        # print getLastAddedDocumentID('id')
-
-        print "Author Names:"
-        authors = findall(jsonData['TEI']['teiHeader']['fileDesc']['sourceDesc'], 'author')
-        authorNames = '';
-        for y in authors:
-            for x in y:
-                if 'persName' in x:
-                    foreNames = convert(x['persName']['forename'])
-                    individualName = ''
-                    if isinstance(foreNames, dict):
-                        individualName = getData(foreNames) + ' '
-                    elif isinstance(foreNames, list):
-                        for i in range(0, len(foreNames)):
-                            individualName += getData(foreNames[i]) + ' '
-                    individualName += x['persName']['surname']
-                    authorNames += individualName + ', '
-        authorNames = authorNames[:-2]
-        print authorNames
-        authorNames = convertASCIItoStr(authorNames)
-        authorNames = str(authorNames)
-        print "authorname:"
-        print type(authorNames)
-
-        abstract = findall(jsonData['TEI']['teiHeader']['profileDesc'], 'abstract')
-        if isinstance(abstract, dict):
-            abstract = getAbstractData(abstract)
-        elif isinstance(abstract, list):
-            abstract = getAbstractData(abstract[0])
-        # print abstract
-        # abstract = abstract.replace('"', '\\"')
-        # abstract = abstract.replace('-', '')
-        # abstract = abstract.replace('+', '\\+')
-        # abstract = abstract.replace('&', '\\&')
-        # abstract = abstract.replace('|', '\\|')
-        # abstract = abstract.replace('!', '\\!')
-        # abstract = abstract.replace('(', '\\(')
-        # abstract = abstract.replace('{', '\\{')
-        # abstract = abstract.replace('}', '\\}')
-        # abstract = abstract.replace('[', '\\[')
-        # abstract = abstract.replace(']', '\\]')
-        # abstract = abstract.replace('^', '\\^')
-        # abstract = abstract.replace('~', '\\~')
-        # abstract = abstract.replace('*', '\\*')
-        # abstract = abstract.replace('?', '\\?')
-        # abstract = abstract.replace(':', '\\:')
-        # abstract = abstract.replace('\\', "\\")
-        # abstract = abstract.replace(',', "")
-
-
-        print 'abstract:'
-        print abstract
-        abstract = convertASCIItoStr(abstract)
-        abstract = str(abstract)
-
-
-        # abstract = escapeSolrValue(abstract)
-        print type(abstract)
-
-        print getLastAddedDocumentID('id')
-        # abstract = "^"
-
-        cmd = "curl localhost:8983/solr/" + core + "/update?commit=true -H 'Content-type:application/json' --data-binary " + "\"[{'id':'" + getLastAddedDocumentID(
-            'id') + "','title':{'set':'" + title + "'},'author':{'set':'" + authorNames + "'},'abstract':{'set':'" + abstract + "'}}]\""
-        print cmd
-        pp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        text, err = pp.communicate()
         print text
+
+        print type(text)
+
+
+
+
+        # root = xmltodict.parse(text)
+        # jsonData = json.dumps(root, indent=2)
+        # # print jsonData
+        # jsonData = json.loads(jsonData)
+        # print 'Title:'
+        # print '----------'
+        # title = findall(jsonData['TEI']['teiHeader']['fileDesc']['sourceDesc'], 'title')
+        # print title
+        # print type(title)
+        # # title = convert(title)
+        # # if isinstance(title, dict):
+        # #     title = getTitleData(title)
+        # # elif isinstance(title, list):
+        # #     title = getTitleData(title[0])
+        # # print title
+        # print "title:"
+        #
+        # title = convertASCIItoStr(title)
+        # print title
+        # print type(title)
+        # # title = title.replace(" ", "%20")
+        #
+        # # print getLastAddedDocumentID('id')
+        #
+        # print "Author Names:"
+        # authors = findall(jsonData['TEI']['teiHeader']['fileDesc']['sourceDesc'], 'author')
+        # authorNames = '';
+        # for y in authors:
+        #     for x in y:
+        #         if 'persName' in x:
+        #             foreNames = convert(x['persName']['forename'])
+        #             individualName = ''
+        #             if isinstance(foreNames, dict):
+        #                 individualName = getData(foreNames) + ' '
+        #             elif isinstance(foreNames, list):
+        #                 for i in range(0, len(foreNames)):
+        #                     individualName += getData(foreNames[i]) + ' '
+        #             individualName += x['persName']['surname']
+        #             authorNames += individualName + ', '
+        # authorNames = authorNames[:-2]
+        # print authorNames
+        # authorNames = convertASCIItoStr(authorNames)
+        # authorNames = str(authorNames)
+        # print "authorname:"
+        # print type(authorNames)
+        #
+        # abstract = findall(jsonData['TEI']['teiHeader']['profileDesc'], 'abstract')
+        # if isinstance(abstract, dict):
+        #     abstract = getAbstractData(abstract)
+        # elif isinstance(abstract, list):
+        #     abstract = getAbstractData(abstract[0])
+        # # print abstract
+        # # abstract = abstract.replace('"', '\\"')
+        # # abstract = abstract.replace('-', '')
+        # # abstract = abstract.replace('+', '\\+')
+        # # abstract = abstract.replace('&', '\\&')
+        # # abstract = abstract.replace('|', '\\|')
+        # # abstract = abstract.replace('!', '\\!')
+        # # abstract = abstract.replace('(', '\\(')
+        # # abstract = abstract.replace('{', '\\{')
+        # # abstract = abstract.replace('}', '\\}')
+        # # abstract = abstract.replace('[', '\\[')
+        # # abstract = abstract.replace(']', '\\]')
+        # # abstract = abstract.replace('^', '\\^')
+        # # abstract = abstract.replace('~', '\\~')
+        # # abstract = abstract.replace('*', '\\*')
+        # # abstract = abstract.replace('?', '\\?')
+        # # abstract = abstract.replace(':', '\\:')
+        # # abstract = abstract.replace('\\', "\\")
+        # # abstract = abstract.replace(',', "")
+        #
+        #
+        # print 'abstract:'
+        # print abstract
+        # abstract = convertASCIItoStr(abstract)
+        # abstract = str(abstract)
+        #
+        #
+        # # abstract = escapeSolrValue(abstract)
+        # print type(abstract)
+        #
+        # print getLastAddedDocumentID('id')
+        # # abstract = "^"
+        #
+        # cmd = "curl localhost:8983/solr/" + core + "/update?commit=true -H 'Content-type:application/json' --data-binary " + "\"[{'id':'" + getLastAddedDocumentID(
+        #     'id') + "','title':{'set':'" + title + "'},'author':{'set':'" + authorNames + "'},'abstract':{'set':'" + abstract + "'}}]\""
+        # print cmd
+        # pp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        # text, err = pp.communicate()
+        # print text
 
     except urllib2.HTTPError as e:
         print(str(e))
