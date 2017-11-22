@@ -53,28 +53,28 @@
                 });
             });
         });
+
+
     </script>
+
+    <style>
+        .annotationDisplay {
+            display: none;
+        }
+
+        .input-group-addon.success {
+            color: rgb(255, 255, 255);
+            background-color: rgb(92, 184, 92);
+            border-color: rgb(76, 174, 76);
+        }
+
+        .input-group-addon.danger {
+            color: rgb(255, 255, 255);
+            background-color: rgb(217, 83, 79);
+            border-color: rgb(212, 63, 58);
+        }
+    </style>
 </head>
-
-<style>
-
-    .annotationDisplay {
-        display: none;
-    }
-
-    .input-group-addon.success {
-        color: rgb(255, 255, 255);
-        background-color: rgb(92, 184, 92);
-        border-color: rgb(76, 174, 76);
-    }
-
-    .input-group-addon.danger {
-        color: rgb(255, 255, 255);
-        background-color: rgb(217, 83, 79);
-        border-color: rgb(212, 63, 58);
-    }
-
-</style>
 
 <body>
 

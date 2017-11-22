@@ -22,6 +22,7 @@ function getJSONdata($query, $department)
     return json_decode(exec("python ./pyCalculation/searchResultsFromUser.py $query $department"), true);
 }
 
+
 /**
  * @param $department
  * @param $list
@@ -48,21 +49,28 @@ function searchResults($department, $list, $totalResults = false)
             echo '<div class="panel panel-default panel-responsive" style=\'border-color: darkslategray;\'>';
 
             if (isset($list['docs'][$x]['dc_title']) || isset($list['docs'][$x]['title'])) {
+
+                echo "<b>Title: </b>";
+
                 if ($list['docs'][$x]['title'] != null) {
-                    foreach ($list['docs'][$x]["title"] as $l) {
-                        echo "<div class = \"panel-body\">";
-                        echo "<b>Title: </b>";
-                        echo $l;
-                        echo "\n";
-                        echo "</div>";
-                    }
+//                    foreach ($list['docs'][$x]["title"] as $l) {
+//                        echo "<div class = \"panel-body\">";
+//                        echo "<b>Title: </b>";
+//                        echo $l;
+//                        echo "\n";
+//                        echo "</div>";
+//                    }
+                    echo $list['docs'][$x]["title"];
+                    echo "<br>";
                 } else {
                     echo "<div class = \"panel-body\">";
                     echo "</div>";
                 }
             }
+            echo "<br>";
 
             if (isset($list['docs'][$x]["author"]) || isset($list['docs'][$x]["meta_author"])) {
+
                 echo "<small><b>";
                 echo "Author: ";
                 echo "</b></small>";
@@ -78,6 +86,7 @@ function searchResults($department, $list, $totalResults = false)
                 } else
                     echo "No Author";
             }
+            echo "<br>";
 
             if (isset($list['docs'][$x]["abstract"])) {
                 echo "<small><b>";
@@ -94,7 +103,7 @@ function searchResults($department, $list, $totalResults = false)
                 } else
                     echo "No Abstract";
             }
-
+            echo "<br>";
 
             foreach ($list['docs'][$x]["_id"] as $l) {
                 echo "<div class = \"panel-footer\">";

@@ -14,13 +14,15 @@
     display: block;
 }
 
-div.panel:hover{
+div.panel:hover {
     background-color: darkgrey;
 }
-div.panel-body:hover{
+
+div.panel-body:hover {
     color: white;
 }
-div.panel-footer:hover{
+
+div.panel-footer:hover {
     color: black;
 }
 
