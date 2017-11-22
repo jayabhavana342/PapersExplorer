@@ -13,7 +13,7 @@ def coreOperations(operation, coreName):
     if operation == 'create':
 
         try:
-            shutil.copytree(fullPathToSolrServerFolder + "configsets/basic_configs/conf",
+            shutil.copytree(fullPathToSolrServerFolder + "configsets/_default/conf",
                             fullPathToSolrServerFolder + coreName + "/conf")
         except OSError as exc:  # python >2.5
             if exc.errno == errno.ENOTDIR:
@@ -26,7 +26,7 @@ def coreOperations(operation, coreName):
         # timestamp,abstract,author,annotation,summary,references,title
         run_curl("curl -X POST -H 'Content-type:application/json' --data-binary \"{"
                  "\"add-field\":["
-                 "{\"name\":\"timestamp\",\"type\":\"date\",\"indexed\":true,\"stored\":true,\"default\":\"NOW\",\"multiValued\":false},"
+                 "{\"name\":\"timestamp\",\"type\":\"pdate\",\"indexed\":true,\"stored\":true,\"default\":\"NOW\",\"multiValued\":false},"
                  "{\"name\":\"abstract\",\"type\":\"string\",\"indexed\":true,\"stored\":true,\"docValues\":true},"
                  "{\"name\":\"author\",\"type\":\"string\",\"indexed\":true,\"stored\":true,\"docValues\":true},"
                  "{\"name\":\"annotation\",\"type\":\"string\",\"indexed\":true,\"stored\":true,\"docValues\":true},"
