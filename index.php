@@ -2,7 +2,6 @@
 include("includes/header.php");
 include("functions/functions.php");
 ?>
-asl;
     <div class="jumbotron">
         <div class="row text-center">
             <form class="navbar-form">

@@ -19,6 +19,10 @@ function coreDisplay()
 
 function getJSONdata($query, $department)
 {
+    if (isset($_GET["del"])){
+        $id = $_GET["del"];
+        exec("python ./pyCalculation/deleteResearchPaper.py $id $department");
+    }
     return json_decode(exec("python ./pyCalculation/searchResultsFromUser.py $query $department"), true);
 }
 
@@ -31,7 +35,7 @@ function getJSONdata($query, $department)
 function searchResults($department, $list, $totalResults = false)
 {
 //    echo "<pre>";
-//    var_dump($list);
+//    var_dump($_SERVER);
 //    echo "</pre>";
     if ($totalResults)
         echo $list["numFound"];
@@ -46,67 +50,51 @@ function searchResults($department, $list, $totalResults = false)
         echo "</p>";
 
         for ($x = 0; $x < $list['numFound']; $x++) {
-            echo '<div class="panel panel-default panel-responsive" style=\'border-color: darkslategray;\'>';
+            echo '<div class="panel panel-default">';
+            echo '<div class = "panel-heading pull-left">';
 
-            if (isset($list['docs'][$x]['dc_title']) || isset($list['docs'][$x]['title'])) {
-
+            if (isset($list['docs'][$x]['title'])) {
+                echo "<h4 class='pull-left' style='font-family: \"Comic Sans MS\"'>";
                 echo "<b>Title: </b>";
-
                 if ($list['docs'][$x]['title'] != null) {
-//                    foreach ($list['docs'][$x]["title"] as $l) {
-//                        echo "<div class = \"panel-body\">";
-//                        echo "<b>Title: </b>";
-//                        echo $l;
-//                        echo "\n";
-//                        echo "</div>";
-//                    }
                     echo $list['docs'][$x]["title"];
-                    echo "<br>";
                 } else {
-                    echo "<div class = \"panel-body\">";
-                    echo "</div>";
+                    echo "No Title";
                 }
+                echo "</h4>";
+                $request = $_SERVER['REQUEST_URI'];
+                echo '<a href="' . $request . '&del=' . $list['docs'][$x]['id'] . '" class="close pull-right" aria-label="Close"><span aria-hidden="true">&times;</span></a>';
             }
             echo "<br>";
 
-            if (isset($list['docs'][$x]["author"]) || isset($list['docs'][$x]["meta_author"])) {
-
-                echo "<small><b>";
+            if (isset($list['docs'][$x]["author"])) {
+                echo "<h5 class='pull-left' style='font-family: \"Comic Sans MS\"' align='justify'><b>";
                 echo "Author: ";
                 echo "</b></small>";
                 if ($list['docs'][$x]["author"] != null) {
                     echo $list['docs'][$x]["author"];
-                    echo "<br>";
-//                    foreach ($list['docs'][$x]["author"] as $l) {
-//                        echo "<small>";
-//                        echo $l;
-//                        echo "</small>";
-//                        echo "<br>";
-//                    }
-                } else
+                } else {
                     echo "No Author";
+                }
+                echo "</h5>";
             }
             echo "<br>";
 
             if (isset($list['docs'][$x]["abstract"])) {
-                echo "<small><b>";
+                echo "<h5 class='pull-left' style='font-family: \"Comic Sans MS\"' align='justify'><b>";
                 echo "Abstract: ";
-                echo "</b></small>";
+                echo "</b>";
                 if ($list['docs'][$x]["abstract"] != null) {
                     echo $list['docs'][$x]["abstract"];
-//                    foreach ($list['docs'][$x]["abstract"] as $l) {
-//                        echo "<small>";
-//                        echo $l;
-//                        echo "</small>";
-//                        echo "<br>";
-//                    }
-                } else
+                } else {
                     echo "No Abstract";
+                }
+                echo "</h5>";
             }
             echo "<br>";
-
+            echo "</div>";
+            echo '<div class="panel-body">';
             foreach ($list['docs'][$x]["_id"] as $l) {
-                echo "<div class = \"panel-footer\">";
                 echo "<div class='row'>";
                 echo "<h6><b>File Path: </b><code>{$_SERVER['DOCUMENT_ROOT']}/ResearchPapers/{$department}/{$l}</code></h6>";
                 echo "<a href='ResearchPapers/{$department}/{$l}' class='btn btn-default btn-sm' target='_blank'>";
@@ -127,8 +115,9 @@ function searchResults($department, $list, $totalResults = false)
                 echo '<p></p>';
                 echo "</div>";
                 echo "</div>";
-                echo "</div>";
             }
+            echo "</div>";
+
             echo "</div>";
         }
         echo "</div>";

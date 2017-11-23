@@ -95,7 +95,7 @@
                     $urls = array(
 //                        'Advanced Search' => './advancedSearch.php',
                         'Upload Document' => './uploadResearchPaper.php',
-                        'Delete Document' => './deleteResearchPaper.php',
+//                        'Delete Document' => './deleteResearchPaper.php',
                     );
 
                     foreach ($urls as $name => $url) {
