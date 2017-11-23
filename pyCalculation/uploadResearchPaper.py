@@ -1,231 +1,129 @@
-import urllib2
-import subprocess
-import collections
-import xmltodict
-import json
+import re
+import xml.etree.ElementTree as ET
 
 from settings import *
 
-# query = sys.argv[1]
-query = 'Band.pdf'
-# department = sys.argv[2]
+query = sys.argv[1]
+department = sys.argv[2]
 
 
-department = 'test'
+# for testing purpose
+# query = 'Guiry2014.pdf'
+# department = 'test'
 
-
-def findall(data, match):
-    found = []
-
-    for key, value in data.iteritems():
-        if key == match:
-            found.append(value)
-
-        elif isinstance(value, dict):
-            results = findall(value, match)
-            for result in results:
-                found.append(result)
-        elif isinstance(value, list):
-            for item in value:
-                if isinstance(item, dict):
-                    moreResults = findall(item, match)
-                    for res in moreResults:
-                        found.append(res)
-    return found
-
-
-def convert(data):
-    if isinstance(data, basestring):
-        return str(data)
-    elif isinstance(data, collections.Mapping):
-        return dict(map(convert, data.iteritems()))
-    elif isinstance(data, collections.Iterable):
-        return type(data)(map(convert, data))
-    else:
-        return data
-
-
-def getData(data):
-    if isinstance(data, dict):
-        if '@type' in data.keys() and 'first' in data.values():
-            if '#text' in data.keys():
-                return data['#text']
-        if '@type' in data.keys() and 'middle' in data.values():
-            if '#text' in data.keys():
-                return data['#text']
-
-
-def getTitleData(data):
-    if isinstance(data, dict):
-        if '#text' in data.keys():
-            return data['#text']
-
-
-def getLastAddedDocumentID(id):
-    url1 = importQuery + department + '/select?q=*:*&start=0&rows=1&sort=timestamp+desc&wt=python&indent=On'
-    print url1
-    request = urllib2.Request(url1)
-    try:
-        connection = urllib2.urlopen(request)
-        response = eval(connection.read())
-        # print type(response['response']['docs'])
-        res = response['response']['docs'][0]
-        # print type(res)
-        for key, value in res.iteritems():
-            if key == id:
-                print "id:"
-                print type(value)
-                return value
-    except urllib2.HTTPError as e:
-        print(str(e))
-
-
-def getAbstractData(data):
-    if isinstance(data, dict):
-        if 'p' in data.keys():
-            return data['p']
-
-
-def escapeSolrValue(str):
-    match = ['\\', '+', '-', '&', '|', '!', '(', ')', '{', '}', '[', ']', '^', '~', '*', '?', ':', '"', ';', ' ']
-    rep = ['\\\\', '\\+', '\\-', '\\&', '\\|', '\\!', '\\(', '\\)', '\\{', '\\}', '\\[', '\\]', '\\^', '\\~', '\\*',
-           '\\?', '\\:', '\\"', '\\;', '\\ ']
-
-    for x in range(0, len(match)):
-        str = str.replace(match[x], rep[x])
-    return str
-
+# Convert ASCII type data to string type data
 def convertASCIItoStr(stri):
     try:
         stri = str(stri).decode('utf8')
     except UnicodeEncodeError:
         # already unicode
         pass
-
     return stri
 
 
+# Get the unique ID of recently added document
+def getLastAddedDocumentID(id):
+    try:
+        response = eval(urllib2.urlopen(urllib2.Request(
+            importQuery + department + '/select?q=*:*&start=0&rows=1&sort=timestamp+desc&wt=python&indent=On')).read())
+        for key, value in response['response']['docs'][0].iteritems():
+            if key == id:
+                return value
+    except urllib2.HTTPError as e:
+        print(str(e))
+
+
+# Adding document to solr core and updating the title, abstract and author names.
 def addDocument(directory, filename, core):
     filepath = directory + filename
-    # filename = filename.replace(",", "%2c")
-    # filename = filename.replace("(", "%28")
-    # filename = filename.replace(")", "%29")
-    # print filename
     with open(filepath, 'rb') as data_file:
         my_data = data_file.read()
     url = importQuery + core + '/update/extract?commit=true&literal._id=' + filename
     req = urllib2.Request(url, data=my_data)
     req.add_header('content-type', 'application/pdf')
     try:
-        print 'started'
         f = urllib2.urlopen(req)
-        # xml_command = 'curl -v --form input=@../ResearchPapers/Band.pdf http://cloud.science-miner.com/grobid/processFulltextDocument'
-        xml_command = 'curl -v --form input=@' + pathToResearchPapersFolder + core + '/' + filename + ' localhost:8070/api/processFulltextDocument'
-        # xml_command = 'curl -v --form input=@' + pathToResearchPapersFolder  + '/' + filename + ' http://cloud.science-miner.com/grobid/processFulltextDocument'
-        # print xml_command
-        p = subprocess.Popen(xml_command, shell=True, stdout=subprocess.PIPE)
+        p = subprocess.Popen(
+            'curl -v --form input=@' + pathToResearchPapersFolder + core + '/' + filename + ' http://cloud.science-miner.com/grobid/processFulltextDocument',
+            shell=True, stdout=subprocess.PIPE)
         text, err = p.communicate()
-        print text
 
-        print type(text)
+        if text is not None:
+            print text
+        if err is not None:
+            print err
 
+        tree = ET.ElementTree(ET.fromstring(text))
 
+        child = title = authorNames = abstract = ''
 
+        # title
+        for elem in tree.iter():
+            if 'titleStmt' in elem.tag:
+                child = elem
+                break
 
-        # root = xmltodict.parse(text)
-        # jsonData = json.dumps(root, indent=2)
-        # # print jsonData
-        # jsonData = json.loads(jsonData)
-        # print 'Title:'
-        # print '----------'
-        # title = findall(jsonData['TEI']['teiHeader']['fileDesc']['sourceDesc'], 'title')
-        # print title
-        # print type(title)
-        # # title = convert(title)
-        # # if isinstance(title, dict):
-        # #     title = getTitleData(title)
-        # # elif isinstance(title, list):
-        # #     title = getTitleData(title[0])
-        # # print title
-        # print "title:"
-        #
-        # title = convertASCIItoStr(title)
-        # print title
-        # print type(title)
-        # # title = title.replace(" ", "%20")
-        #
-        # # print getLastAddedDocumentID('id')
-        #
-        # print "Author Names:"
-        # authors = findall(jsonData['TEI']['teiHeader']['fileDesc']['sourceDesc'], 'author')
-        # authorNames = '';
-        # for y in authors:
-        #     for x in y:
-        #         if 'persName' in x:
-        #             foreNames = convert(x['persName']['forename'])
-        #             individualName = ''
-        #             if isinstance(foreNames, dict):
-        #                 individualName = getData(foreNames) + ' '
-        #             elif isinstance(foreNames, list):
-        #                 for i in range(0, len(foreNames)):
-        #                     individualName += getData(foreNames[i]) + ' '
-        #             individualName += x['persName']['surname']
-        #             authorNames += individualName + ', '
-        # authorNames = authorNames[:-2]
-        # print authorNames
-        # authorNames = convertASCIItoStr(authorNames)
-        # authorNames = str(authorNames)
-        # print "authorname:"
-        # print type(authorNames)
-        #
-        # abstract = findall(jsonData['TEI']['teiHeader']['profileDesc'], 'abstract')
-        # if isinstance(abstract, dict):
-        #     abstract = getAbstractData(abstract)
-        # elif isinstance(abstract, list):
-        #     abstract = getAbstractData(abstract[0])
-        # # print abstract
-        # # abstract = abstract.replace('"', '\\"')
-        # # abstract = abstract.replace('-', '')
-        # # abstract = abstract.replace('+', '\\+')
-        # # abstract = abstract.replace('&', '\\&')
-        # # abstract = abstract.replace('|', '\\|')
-        # # abstract = abstract.replace('!', '\\!')
-        # # abstract = abstract.replace('(', '\\(')
-        # # abstract = abstract.replace('{', '\\{')
-        # # abstract = abstract.replace('}', '\\}')
-        # # abstract = abstract.replace('[', '\\[')
-        # # abstract = abstract.replace(']', '\\]')
-        # # abstract = abstract.replace('^', '\\^')
-        # # abstract = abstract.replace('~', '\\~')
-        # # abstract = abstract.replace('*', '\\*')
-        # # abstract = abstract.replace('?', '\\?')
-        # # abstract = abstract.replace(':', '\\:')
-        # # abstract = abstract.replace('\\', "\\")
-        # # abstract = abstract.replace(',', "")
-        #
-        #
-        # print 'abstract:'
-        # print abstract
-        # abstract = convertASCIItoStr(abstract)
-        # abstract = str(abstract)
-        #
-        #
-        # # abstract = escapeSolrValue(abstract)
-        # print type(abstract)
-        #
-        # print getLastAddedDocumentID('id')
-        # # abstract = "^"
-        #
-        # cmd = "curl localhost:8983/solr/" + core + "/update?commit=true -H 'Content-type:application/json' --data-binary " + "\"[{'id':'" + getLastAddedDocumentID(
-        #     'id') + "','title':{'set':'" + title + "'},'author':{'set':'" + authorNames + "'},'abstract':{'set':'" + abstract + "'}}]\""
-        # print cmd
-        # pp = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        # text, err = pp.communicate()
-        # print text
+        for elem in child.iter():
+            if 'title' in elem.tag:
+                if elem.get('type') == 'main':
+                    print 'Title: ', elem.text
+                    title = elem.text
+
+        # abstract
+        for elem in tree.iter():
+            if 'profileDesc' in elem.tag:
+                child = elem
+                # print [el.tag for el in child.iter()]
+                break
+
+        for elem in child.iter():
+            if 'abstract' in elem.tag:
+                child = elem
+                for elem1 in child.iter():
+                    if 'p' in elem1.tag:
+                        print 'Abstract: ', elem1.text
+                        abstract = elem1.text
+                break
+
+        # Authors
+        for elem in tree.iter():
+            if 'fileDesc' in elem.tag:
+                child = elem
+                break
+
+        for elem1 in child.iter():
+            if 'author' in elem1.tag:
+                for elem in elem1.iter():
+                    if 'forename' in elem.tag:
+                        if elem.get('type') == 'first':
+                            print 'firstName: ', elem.text
+                            authorNames = authorNames + elem.text + ' '
+                        if elem.get('type') == 'middle':
+                            print 'middleName: ', elem.text
+                            authorNames = authorNames + elem.text + ' '
+                    if 'surname' in elem.tag:
+                        print 'lastName: ', elem.text
+                        authorNames = authorNames + elem.text + '; '
+                        print "-----"
+
+        # Converting ASCII to Str and escaping all special charecters
+        title = re.escape(convertASCIItoStr(title))
+        authorNames = re.escape(convertASCIItoStr(authorNames))
+        abstract = re.escape(convertASCIItoStr(abstract))
+
+        pp = subprocess.Popen(
+            "curl localhost:8983/solr/" + core + "/update?commit=true -H 'Content-type:application/json' --data-binary " + "\"[{'id':'" + getLastAddedDocumentID(
+                'id') + "','title':{'set':'" + title + "'},'author':{'set':'" + authorNames + "'},'abstract':{'set':'" + abstract + "'}}]\"",
+            shell=True, stdout=subprocess.PIPE)
+        text, err = pp.communicate()
+
+        if text is not None:
+            print text
+        if err is not None:
+            print err
 
     except urllib2.HTTPError as e:
         print(str(e))
 
 
 addDocument(pathToResearchPapersFolder + department + '/', query, department)
-# addDocument('../ResearchPapers/', query, department)

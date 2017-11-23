@@ -1,11 +1,16 @@
 import os
 import sys
+import urllib2
 import subprocess
+
+# to avoid other language's
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 importQuery = 'http://localhost:8983/solr/'
 fullPathToSolrBinFolder = "C:/solr-7.1.0/bin/solr/"
 fullPathToSolrServerFolder = "C:/solr-7.1.0/server/solr/"
-pathToResearchPapersFolder = "../ResearchPapers/"
+pathToResearchPapersFolder = "./ResearchPapers/"
 
 
 def run_curl(curl_cmd):

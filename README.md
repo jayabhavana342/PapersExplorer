@@ -17,3 +17,6 @@ Below softwares should be installed to run the Project:
 #### Course
 
 **CS5395-004** Independent study with [Dr.Anne Hee Hiong Ngu](http://cs.txstate.edu/~hn12/) at Texas State University.
+
+contentServer.pdf - has a different file format
+ParticleFilter.pdf - PDF TO XML timed out- upload to grobid and check
