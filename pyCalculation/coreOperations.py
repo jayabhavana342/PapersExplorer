@@ -35,6 +35,8 @@ def coreOperations(operation, coreName):
                  "{\"name\":\"title\",\"type\":\"string\",\"indexed\":true,\"stored\":true,\"docValues\":true}"
                  "]}\" " + importQuery + coreName + "/schema  ")
 
+        run_curl('curl "' + importQuery + 'admin/cores?action=RELOAD&core=' + coreName + '"')
+
     elif operation == 'delete':
         run_curl("curl \"" +
                  importQuery + "admin/cores?action=UNLOAD&core=" + coreName + "&deleteIndex=true&deleteDataDir=true&deleteInstanceDir=true\"")
