@@ -30,23 +30,26 @@
                 var $this = $(this);
                 var oldText = $this.parent().parent().find('p').text();
                 var id = $this.parent().parent().find('#id').val();
-                console.log('id:'+id);
-                $this.parent().parent().find('p').empty().append('<textarea class="newAnnotation" cols="33">' + oldText + '</textarea>');
-                $('.newAnnotation').blur(function() {
+                var core = $this.parent().parent().find('#core').val();
+//                console.log('id:' + id);
+                $this.parent().parent().find('p').empty().append('<textarea class="newAnnotation form-control" cols="33">' + oldText + '</textarea>');
+                $('.newAnnotation').blur(function () {
                     var newText = $(this).val();
+//                    console.log('newText:' + newText);
                     $.ajax({
                         type: 'POST',
                         url: 'updateAnnotation.php',
-                        data: 'description=' + newText + '&id=' + id,
+                        data: 'description=' + newText + '&id=' + id + '&core=' + core,
 
-                        success: function(results) {
+                        success: function (results) {
+                            console.log('result:' + results);
                             $this.parent().parent().find('p').empty().append(newText);
                         }
                     });
                 });
                 return false;
-            })
-        })
+            });
+        });
 
     </script>
 

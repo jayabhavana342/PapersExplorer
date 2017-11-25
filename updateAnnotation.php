@@ -1,5 +1,19 @@
 <?php
-$result = $_POST;
-echo "<script>console.log($result);</script>"
 
+
+include("functions/functions.php");
+
+$description = $_POST["description"];
+$id = $_POST["id"];
+$core = $_POST["core"];
+//echo "<script>console.log($description" . " " . "$id" . " " . "$core);</script>";
+$result = exec("python ./pyCalculation/updateAnnotation.py $description $id $core 2>&1", $output, $ret_code);
+//echo $result;
+echo "<pre>";
+foreach ($output as $val) {
+    echo $val;
+    echo "<br>";
+}
+echo "</pre>";
+//echo "<script>console.log($result);</script>";
 ?>

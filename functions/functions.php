@@ -32,10 +32,10 @@ function getJSONdata($query, $department)
 function searchResults($department, $list, $totalResults = false)
 {
     global $target_dir;
-    echo "<pre>";
+//    echo "<pre>";
 //    var_dump($_SERVER);
 //    var_dump($list);
-    echo "</pre>";
+//    echo "</pre>";
     if ($totalResults)
         echo $list["numFound"];
     else {
@@ -115,7 +115,8 @@ function searchResults($department, $list, $totalResults = false)
                         "<div id='collapse" . $i . "' class='panel-collapse collapse'>" .
                             "<div class='panel-body'>" .
                                 "<p>{$annotation}</p>" .
-                                '<input type="hidden" name="id" id="id" value="'.$annotation.'" />' .
+                                '<input type="hidden" name="id" id="id" value="'.$list['docs'][$x]["id"].'" />' .
+                                '<input type="hidden" name="core" id="core" value="'.$department.'" />' .
                                 "<a href='#' class='editAnnotation pull-right'><span class='glyphicon glyphicon-edit'></span></a>" .
                                 "<br><hr>" .
                                 "<button type=\"button\" class=\"btn btn-default btn-sm center-block\">" .
