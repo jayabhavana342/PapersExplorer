@@ -1,4 +1,5 @@
 import re
+import shutil
 import xml.etree.ElementTree as ET
 
 from settings import *
@@ -8,8 +9,9 @@ department = sys.argv[2]
 
 
 # for testing purpose
-# query = 'Guiry2014.pdf'
+# query = 'Band.pdf'
 # department = 'test'
+
 
 # Convert ASCII type data to string type data
 def convertASCIItoStr(stri):
@@ -21,109 +23,82 @@ def convertASCIItoStr(stri):
     return stri
 
 
-# Get the unique ID of recently added document
-def getLastAddedDocumentID(id):
-    try:
-        response = eval(urllib2.urlopen(urllib2.Request(
-            importQuery + department + '/select?q=*:*&start=0&rows=1&sort=timestamp+desc&wt=python&indent=On')).read())
-        for key, value in response['response']['docs'][0].iteritems():
-            if key == id:
-                return value
-    except urllib2.HTTPError as e:
-        print(str(e))
-
-
 # Adding document to solr core and updating the title, abstract and author names.
 def addDocument(directory, filename, core):
     filepath = directory + filename
-    with open(filepath, 'rb') as data_file:
-        my_data = data_file.read()
-    url = importQuery + core + '/update/extract?commit=true&literal._id=' + filename
-    req = urllib2.Request(url, data=my_data)
-    req.add_header('content-type', 'application/pdf')
-    try:
-        f = urllib2.urlopen(req)
-        p = subprocess.Popen(
-            'curl -v --form input=@' + pathToResearchPapersFolder + core + '/' + filename + ' http://cloud.science-miner.com/grobid/processFulltextDocument',
-            shell=True, stdout=subprocess.PIPE)
-        text, err = p.communicate()
 
-        if text is not None:
-            print text
-        if err is not None:
-            print err
+    p = subprocess.Popen(
+        'curl -v --form input=@' + pathToResearchPapersFolder + core + '/' + filename + ' http://cloud.science-miner.com/grobid/processFulltextDocument',
+        shell=True, stdout=subprocess.PIPE)
+    text, err = p.communicate()
 
-        tree = ET.ElementTree(ET.fromstring(text))
+    p.kill()
 
-        child = title = authorNames = abstract = ''
+    # if text is not None:
+    #     print text
+    if err is not None:
+        print err
 
-        # title
-        for elem in tree.iter():
-            if 'titleStmt' in elem.tag:
-                child = elem
-                break
+    tree = ET.ElementTree(ET.fromstring(text))
 
-        for elem in child.iter():
-            if 'title' in elem.tag:
-                if elem.get('type') == 'main':
-                    print 'Title: ', elem.text
-                    title = elem.text
+    child = title = authorNames = abstract = ''
 
-        # abstract
-        for elem in tree.iter():
-            if 'profileDesc' in elem.tag:
-                child = elem
-                # print [el.tag for el in child.iter()]
-                break
+    # title
+    for elem in tree.iter():
+        if 'titleStmt' in elem.tag:
+            child = elem
+            break
 
-        for elem in child.iter():
-            if 'abstract' in elem.tag:
-                child = elem
-                for elem1 in child.iter():
-                    if 'p' in elem1.tag:
-                        print 'Abstract: ', elem1.text
-                        abstract = elem1.text
-                break
+    for elem in child.iter():
+        if 'title' in elem.tag:
+            if elem.get('type') == 'main':
+                print 'Title: ', elem.text
+                title = elem.text
 
-        # Authors
-        for elem in tree.iter():
-            if 'fileDesc' in elem.tag:
-                child = elem
-                break
+    # abstract
+    for elem in tree.iter():
+        if 'profileDesc' in elem.tag:
+            child = elem
+            # print [el.tag for el in child.iter()]
+            break
 
-        for elem1 in child.iter():
-            if 'author' in elem1.tag:
-                for elem in elem1.iter():
-                    if 'forename' in elem.tag:
-                        if elem.get('type') == 'first':
-                            print 'firstName: ', elem.text
-                            authorNames = authorNames + elem.text + ' '
-                        if elem.get('type') == 'middle':
-                            print 'middleName: ', elem.text
-                            authorNames = authorNames + elem.text + ' '
-                    if 'surname' in elem.tag:
-                        print 'lastName: ', elem.text
-                        authorNames = authorNames + elem.text + '; '
-                        print "-----"
+    for elem in child.iter():
+        if 'abstract' in elem.tag:
+            child = elem
+            for elem1 in child.iter():
+                if 'p' in elem1.tag:
+                    print 'Abstract: ', elem1.text
+                    abstract = elem1.text
+            break
 
-        # Converting ASCII to Str and escaping all special charecters
-        title = re.escape(convertASCIItoStr(title))
-        authorNames = re.escape(convertASCIItoStr(authorNames))
-        abstract = re.escape(convertASCIItoStr(abstract))
+    # Authors
+    for elem in tree.iter():
+        if 'fileDesc' in elem.tag:
+            child = elem
+            break
 
-        pp = subprocess.Popen(
-            "curl localhost:8983/solr/" + core + "/update?commit=true -H 'Content-type:application/json' --data-binary " + "\"[{'id':'" + getLastAddedDocumentID(
-                'id') + "','title':{'set':'" + title + "'},'author':{'set':'" + authorNames + "'},'abstract':{'set':'" + abstract + "'},'annotation':{'set':'Null'}}]\"",
-            shell=True, stdout=subprocess.PIPE)
-        text, err = pp.communicate()
+    for elem1 in child.iter():
+        if 'author' in elem1.tag:
+            for elem in elem1.iter():
+                if 'forename' in elem.tag:
+                    if elem.get('type') == 'first':
+                        print 'firstName: ', elem.text
+                        authorNames = authorNames + elem.text + ' '
+                    if elem.get('type') == 'middle':
+                        print 'middleName: ', elem.text
+                        authorNames = authorNames + elem.text + ' '
+                if 'surname' in elem.tag:
+                    print 'lastName: ', elem.text
+                    authorNames = authorNames + elem.text + '; '
+                    print "-----"
 
-        if text is not None:
-            print text
-        if err is not None:
-            print err
+    # Converting ASCII to Str and escaping all special charecters
+    title = re.escape(convertASCIItoStr(title))
+    authorNames = re.escape(convertASCIItoStr(authorNames))
+    abstract = re.escape(convertASCIItoStr(abstract))
 
-    except urllib2.HTTPError as e:
-        print(str(e))
+    run_curl(
+        "curl localhost:8983/solr/" + core + "/update?commit=true -H 'Content-type:application/json' --data-binary " + "\"[{'_id':'" + filename + "','title':{'set':'" + title + "'},'author':{'set':'" + authorNames + "'},'abstract':{'set':'" + abstract + "'},'annotation':{'set':'Null'}}]\"")
 
 
 addDocument(pathToResearchPapersFolder + department + '/', query, department)

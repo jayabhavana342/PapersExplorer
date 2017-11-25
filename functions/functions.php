@@ -53,44 +53,43 @@ function searchResults($department, $list, $totalResults = false)
             echo '<div class="panel panel-default">';
             echo '<div class = "panel-heading pull-left">';
 
+            echo "<h4 class='pull-left' style='font-family: \"Comic Sans MS\"'>";
+            echo "<b>Title: </b>";
             if (isset($list['docs'][$x]['title'])) {
-                echo "<h4 class='pull-left' style='font-family: \"Comic Sans MS\"'>";
-                echo "<b>Title: </b>";
                 if ($list['docs'][$x]['title'] != null) {
                     echo "<a href=''>" . $list['docs'][$x]["title"] . "</a>";
-                } else {
-                    echo "No Title";
                 }
-                echo "</h4>";
-                $request = $_SERVER['REQUEST_URI'];
-                echo '<a href="' . $request . '&del=' . $list['docs'][$x]['id'] . '" class="close pull-right" aria-label="Close"><span aria-hidden="true">&times;</span></a>';
+            } else {
+                echo "No Title";
             }
+            echo "</h4>";
+            echo '<a href="' . $_SERVER['REQUEST_URI'] . '&del=' . $list['docs'][$x]['id'] . '" class="close pull-right" aria-label="Close"><span aria-hidden="true">&times;</span></a>';
             echo "<br>";
 
+
+            echo "<h5 class='pull-left' style='font-family: \"Comic Sans MS\"'>";
+            echo "<b>Author: </b>";
             if (isset($list['docs'][$x]["author"])) {
-                echo "<h5 class='pull-left' style='font-family: \"Comic Sans MS\"' align='justify'><b>";
-                echo "Author: ";
-                echo "</b></small>";
                 if ($list['docs'][$x]["author"] != null) {
                     echo $list['docs'][$x]["author"];
-                } else {
-                    echo "No Author";
                 }
-                echo "</h5>";
+            } else {
+                echo "No Author";
             }
+            echo "</h5>";
             echo "<br>";
 
+
+            echo "<h5 class='pull-left' style='font-family: \"Comic Sans MS\"' align='justify'>";
+            echo "<b>Abstract: </b>";
             if (isset($list['docs'][$x]["abstract"])) {
-                echo "<h5 class='pull-left' style='font-family: \"Comic Sans MS\"' align='justify'><b>";
-                echo "Abstract: ";
-                echo "</b>";
                 if ($list['docs'][$x]["abstract"] != null) {
                     echo $list['docs'][$x]["abstract"];
-                } else {
-                    echo "No Abstract";
                 }
-                echo "</h5>";
+            } else {
+                echo "No Abstract";
             }
+            echo "</h5>";
             echo "<br>";
             echo "</div>";
 

@@ -71,12 +71,14 @@ include("includes/settings.php");
                                 echo "<span class='text-success'>File: " . $item . " uploaded successfully.</span>";
                                 echo "<br>";
                                 $list = exec("python ./pyCalculation/uploadResearchPaper.py $item $department 2>&1", $output, $ret_code);
+
                                 echo "<pre>";
                                 foreach ($output as $val) {
                                     echo $val;
                                     echo "<br>";
                                 }
                                 echo "</pre>";
+                                shell_exec('kill -KILL ProcessID');
                             } else {
                                 echo "<span class='text-danger'>Sorry, there was an error uploading your file.</span>";
                                 echo "<br>";
@@ -88,6 +90,8 @@ include("includes/settings.php");
             }
             echo "</div>";
         }
+
+
 
         ?>
 
