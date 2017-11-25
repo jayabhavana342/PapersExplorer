@@ -31,10 +31,10 @@ function getJSONdata($query, $department)
 function searchResults($department, $list, $totalResults = false)
 {
     global $target_dir;
-    echo "<pre>";
+//    echo "<pre>";
 //    var_dump($_SERVER);
 //    var_dump($list);
-    echo "</pre>";
+//    echo "</pre>";
 
     if ($totalResults)
         echo $list["numFound"];
