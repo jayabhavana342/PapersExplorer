@@ -113,7 +113,7 @@ def addDocument(directory, filename, core):
 
         pp = subprocess.Popen(
             "curl localhost:8983/solr/" + core + "/update?commit=true -H 'Content-type:application/json' --data-binary " + "\"[{'id':'" + getLastAddedDocumentID(
-                'id') + "','title':{'set':'" + title + "'},'author':{'set':'" + authorNames + "'},'abstract':{'set':'" + abstract + "'}}]\"",
+                'id') + "','title':{'set':'" + title + "'},'author':{'set':'" + authorNames + "'},'abstract':{'set':'" + abstract + "'},'annotation':{'set':'Null'}}]\"",
             shell=True, stdout=subprocess.PIPE)
         text, err = pp.communicate()
 

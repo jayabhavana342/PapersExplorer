@@ -1,6 +1,7 @@
 <?php
 include("includes/header.php");
 include("functions/functions.php");
+
 ?>
     <div class="jumbotron">
         <div class="row text-center">

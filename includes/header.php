@@ -23,37 +23,30 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-filestyle/1.2.1/bootstrap-filestyle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
     <script>
         $(function () {
-            $('#sub').redactor();
-        });
-        $(document).ready(function () {
-            $(document).on('click', 'a.annotate', function () {
-                var closestDiv = $(this).closest('a.annotate'); // also you can use $(this).parent()
-                //closestDiv.fadeOut();
-//                $('.annotationDisplay').not(closestDiv.next('.annotationDisplay')).hide();
-                $('.annotationDisplay').not(closestDiv.next('.annotationDisplay')).hide();
-//                $('.annotationDisplay').closest('div').not(closestDiv).show()
-                closestDiv.next('.annotationDisplay').slideToggle(1000);
+            $('.editAnnotation').click(function () {
+                var $this = $(this);
+                var oldText = $this.parent().parent().find('p').text();
+                var id = $this.parent().parent().find('#id').val();
+                console.log('id:'+id);
+                $this.parent().parent().find('p').empty().append('<textarea class="newAnnotation" cols="33">' + oldText + '</textarea>');
+                $('.newAnnotation').blur(function() {
+                    var newText = $(this).val();
+                    $.ajax({
+                        type: 'POST',
+                        url: 'updateAnnotation.php',
+                        data: 'description=' + newText + '&id=' + id,
 
-
-                $.ajax({
-                    type: 'GET',
-                    url: 'test.php',
-                    success: function (data) {
-                        //console.log(data);
-                        $("#sub").text(data);
-                        document.getElementById('annotate').style.color = 'Green';
-
-                    },
-                    error: function (request, status, error) {
-                        document.getElementById('annotate').style.color = 'Red';
-//                        alert(request.responseText);
-                    }
+                        success: function(results) {
+                            $this.parent().parent().find('p').empty().append(newText);
+                        }
+                    });
                 });
-            });
-        });
-
+                return false;
+            })
+        })
 
     </script>
 

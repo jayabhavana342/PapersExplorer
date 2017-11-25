@@ -1,5 +1,7 @@
 <?php
 
+include("./includes/settings.php");
+
 function coreDisplay()
 {
     echo '<select class="selectpicker show-tick" title="Select Core" name="selectCore" data-live-search="true">';
@@ -19,7 +21,7 @@ function coreDisplay()
 
 function getJSONdata($query, $department)
 {
-    if (isset($_GET["del"])){
+    if (isset($_GET["del"])) {
         $id = $_GET["del"];
         exec("python ./pyCalculation/deleteResearchPaper.py $id $department");
     }
@@ -27,16 +29,13 @@ function getJSONdata($query, $department)
 }
 
 
-/**
- * @param $department
- * @param $list
- * @param bool $totalResults
- */
 function searchResults($department, $list, $totalResults = false)
 {
-//    echo "<pre>";
+    global $target_dir;
+    echo "<pre>";
 //    var_dump($_SERVER);
-//    echo "</pre>";
+//    var_dump($list);
+    echo "</pre>";
     if ($totalResults)
         echo $list["numFound"];
     else {
@@ -48,6 +47,7 @@ function searchResults($department, $list, $totalResults = false)
         echo " Results Found</span>";
         echo "</b>";
         echo "</p>";
+        $i = 0;
 
         for ($x = 0; $x < $list['numFound']; $x++) {
             echo '<div class="panel panel-default">';
@@ -57,7 +57,7 @@ function searchResults($department, $list, $totalResults = false)
                 echo "<h4 class='pull-left' style='font-family: \"Comic Sans MS\"'>";
                 echo "<b>Title: </b>";
                 if ($list['docs'][$x]['title'] != null) {
-                    echo $list['docs'][$x]["title"];
+                    echo "<a href=''>" . $list['docs'][$x]["title"] . "</a>";
                 } else {
                     echo "No Title";
                 }
@@ -93,31 +93,41 @@ function searchResults($department, $list, $totalResults = false)
             }
             echo "<br>";
             echo "</div>";
-            echo '<div class="panel-body">';
-            foreach ($list['docs'][$x]["_id"] as $l) {
-                echo "<div class='row'>";
-                echo "<h6><b>File Path: </b><code>{$_SERVER['DOCUMENT_ROOT']}/ResearchPapers/{$department}/{$l}</code></h6>";
-                echo "<a href='ResearchPapers/{$department}/{$l}' class='btn btn-default btn-sm' target='_blank'>";
-                echo "<span class='glyphicon glyphicon-open-file'></span>";
-                echo " Open";
-                echo "</a>";
-//                echo "<a href='ResearchPapers/{$l}' download class='btn btn-default btn-sm' name='download'>";
-//                echo "<span class='glyphicon glyphicon-download-alt'></span>";
-//                echo " Download";
-//                echo "</a>";
-                echo '<a class="btn btn-default btn-sm annotate" id="annotate" data-id="">';
-                echo "<span class='glyphicon glyphicon-edit'></span>";
-                echo ' Annotate';
-                echo '</a>';
-                echo '<div class="annotationDisplay form_group">';
-//                echo '<input type="hidden" class="hidden" value="">';
-                echo '<textarea id="sub" rows="5" class="form_control"></textarea>';
-                echo '<p></p>';
-                echo "</div>";
-                echo "</div>";
-            }
-            echo "</div>";
 
+            echo '<div class="panel-body">';
+
+            foreach ($list['docs'][$x]["_id"] as $l) {
+                echo "<div class='row'></div>";
+                echo "<h5 style='font-family: \"Comic Sans MS\"'><b>File Path: </b><a href='ResearchPapers/{$department}/{$l}' class='btn btn-default btn-sm' target='_blank'>{$target_dir}{$department}/{$l}</a></h5>";
+
+                $annotation = '';
+                if (isset($list['docs'][$x]["annotation"]))
+                    $annotation = $list['docs'][$x]["annotation"];
+
+                echo "<div class='panel panel-default' id='accordion" . $i . "'>" .
+                        "<div class='panel-heading'>" .
+                            "<h4 class='panel-title'>" .
+                                "<a data-toggle='collapse' data-parent='#accordion" . $i . "' href='#collapse" . $i . "'>" .
+                                "Annotate" .
+                                "</a>" .
+                            "</h4>" .
+                        "</div>" .
+                        "<div id='collapse" . $i . "' class='panel-collapse collapse'>" .
+                            "<div class='panel-body'>" .
+                                "<p>{$annotation}</p>" .
+                                '<input type="hidden" name="id" id="id" value="'.$annotation.'" />' .
+                                "<a href='#' class='editAnnotation pull-right'><span class='glyphicon glyphicon-edit'></span></a>" .
+                                "<br><hr>" .
+                                "<button type=\"button\" class=\"btn btn-default btn-sm center-block\">" .
+                                    "<span class=\"glyphicon glyphicon-import\"></span> Import Data to JSON File" .
+                                "</button>" .
+                            "</div>" .
+                        "</div>" .
+                    "</div>";
+
+                echo "</div>";
+                $i++;
+            }
             echo "</div>";
         }
         echo "</div>";
