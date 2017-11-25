@@ -13,7 +13,7 @@ def queryByField(searchSting, core):
     searchSting = searchSting.replace(" ", "%20")
     searchSting = searchSting.replace("(", "%28")
     searchSting = searchSting.replace(")", "%29")
-    url = importQuery + core + '/select?q=*:*&fq=' + searchSting + '&wt=python&rows=2147483647'
+    url = importQuery + core + '/select?q=*:*&fq=' + searchSting + '&wt=python&rows=2147483647&sort=timestamp%20desc'
     req = urllib2.Request(url)
 
     try:
