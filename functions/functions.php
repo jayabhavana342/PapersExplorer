@@ -28,14 +28,14 @@ function getJSONdata($query, $department)
     return json_decode(exec("python ./pyCalculation/searchResultsFromUser.py $query $department"), true);
 }
 
-
 function searchResults($department, $list, $totalResults = false)
 {
     global $target_dir;
-//    echo "<pre>";
+    echo "<pre>";
 //    var_dump($_SERVER);
 //    var_dump($list);
-//    echo "</pre>";
+    echo "</pre>";
+
     if ($totalResults)
         echo $list["numFound"];
     else {
@@ -116,12 +116,13 @@ function searchResults($department, $list, $totalResults = false)
                             "<div class='panel-body'>" .
                                 "<p>{$annotation}</p>" .
                                 '<input type="hidden" name="id" id="id" value="'.$list['docs'][$x]["id"].'" />' .
+                                '<input type="hidden" name="name" id="name" value="'.$list['docs'][$x]["_id"][0].'" />' .
                                 '<input type="hidden" name="core" id="core" value="'.$department.'" />' .
                                 "<a href='#' class='editAnnotation pull-right'><span class='glyphicon glyphicon-edit'></span></a>" .
                                 "<br><hr>" .
-                                "<button type=\"button\" class=\"btn btn-default btn-sm center-block\">" .
+                                "<a type=\"button\" class=\"btn btn-default btn-sm center-block generateJSON\">" .
                                     "<span class=\"glyphicon glyphicon-import\"></span> Import Data to JSON File" .
-                                "</button>" .
+                                "</a>" .
                             "</div>" .
                         "</div>" .
                     "</div>";

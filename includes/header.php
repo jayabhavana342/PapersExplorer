@@ -51,6 +51,37 @@
             });
         });
 
+        $(function () {
+            $('.generateJSON').click(function () {
+                var $this = $(this);
+                var id = $this.parent().parent().find('#id').val();
+                var core = $this.parent().parent().find('#core').val();
+                var _id = $this.parent().parent().find('#name').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'generateJSON.php',
+                    data: '&id=' + id + '&core=' + core,
+
+                    success: function (results) {
+                        downloadObjectAsJson(results, _id);
+                    }
+                });
+
+                return false;
+            });
+        })
+
+        function downloadObjectAsJson(data, exportName) {
+            console.log(data);
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(data);
+            var downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", exportName + ".json");
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
     </script>
 
     <style>
