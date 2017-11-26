@@ -76,6 +76,7 @@
 
         function downloadObjectAsJson(data, exportName) {
             console.log(data);
+            console.log(typeof (data));
             var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(data);
             var downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
