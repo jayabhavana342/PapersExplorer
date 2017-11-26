@@ -1,5 +1,4 @@
 import re
-import shutil
 import xml.etree.ElementTree as ET
 
 from settings import *
@@ -9,8 +8,8 @@ department = sys.argv[2]
 
 
 # for testing purpose
-# query = 'Band.pdf'
-# department = 'test'
+# query = 'Guiry2014.pdf'
+# department = 'IOT'
 
 
 # Convert ASCII type data to string type data
@@ -23,9 +22,42 @@ def convertASCIItoStr(stri):
     return stri
 
 
+# Get the unique ID of recently added document
+def getLastAddedDocumentID(file):
+    try:
+        r = urllib2.urlopen(urllib2.Request(
+            importQuery + department + '/select?q=*:*&start=0&rows=1&sort=timestamp+desc&wt=python&indent=On'))
+        # run_curl('curl '+importQuery + department + '/select?q=*:*&start=0&rows=1&sort=timestamp+desc&wt=python&indent=On')
+        response = eval(r.read())
+        res = response
+
+        r.close()
+        for key, value in response['response']['docs'][0].iteritems():
+            if key == '_id_str':
+                if value[0] == file:
+                    print key, ":", value
+                    print res['response']['docs'][0]['_id_str'][0]
+                    # print ':' + value
+                    # return value
+                    return res['response']['docs'][0]['id']
+    except urllib2.HTTPError as e:
+        print(str(e))
+
+
 # Adding document to solr core and updating the title, abstract and author names.
 def addDocument(directory, filename, core):
     filepath = directory + filename
+
+    with open(filepath, 'rb') as data_file:
+        my_data = data_file.read()
+    url = importQuery + core + '/update/extract?commit=true&literal._id=' + filename
+    req = urllib2.Request(url, data=my_data)
+    req.add_header('content-type', 'application/pdf')
+    try:
+        f = urllib2.urlopen(req)
+        print f
+    except urllib2.HTTPError as e:
+        print(str(e))
 
     p = subprocess.Popen(
         'curl -v --form input=@' + pathToResearchPapersFolder + core + '/' + filename + ' http://cloud.science-miner.com/grobid/processFulltextDocument',
@@ -97,8 +129,11 @@ def addDocument(directory, filename, core):
     authorNames = re.escape(convertASCIItoStr(authorNames))
     abstract = re.escape(convertASCIItoStr(abstract))
 
+    # print getLastAddedDocumentID(filename)
+
     run_curl(
-        "curl localhost:8983/solr/" + core + "/update?commit=true -H 'Content-type:application/json' --data-binary " + "\"[{'_id':'" + filename + "','title':{'set':'" + title + "'},'author':{'set':'" + authorNames + "'},'abstract':{'set':'" + abstract + "'},'annotation':{'set':'Null'}}]\"")
+        "curl localhost:8983/solr/" + core + "/update?commit=true -H 'Content-type:application/json' --data-binary " + "\"[{'id':'" + getLastAddedDocumentID(
+            filename) + "','title':{'set':'" + title + "'},'author':{'set':'" + authorNames + "'},'abstract':{'set':'" + abstract + "'},'annotation':{'set':'Null'}}]\"")
 
 
 addDocument(pathToResearchPapersFolder + department + '/', query, department)
