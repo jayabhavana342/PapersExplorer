@@ -6,6 +6,7 @@ include("functions/functions.php");
 $description = $_POST["description"];
 $id = $_POST["id"];
 $core = $_POST["core"];
+$description = escapeshellarg($description);
 //echo "<script>console.log($description" . " " . "$id" . " " . "$core);</script>";
 $result = exec("python ./pyCalculation/updateAnnotation.py $description $id $core 2>&1", $output, $ret_code);
 //echo $result;

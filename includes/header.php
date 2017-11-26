@@ -36,6 +36,8 @@
                 $('.newAnnotation').blur(function () {
                     var newText = $(this).val();
 //                    console.log('newText:' + newText);
+                    newText = encodeURIComponent(newText)
+                    console.log(newText);
                     $.ajax({
                         type: 'POST',
                         url: 'updateAnnotation.php',
@@ -43,7 +45,7 @@
 
                         success: function (results) {
                             console.log('result:' + results);
-                            $this.parent().parent().find('p').empty().append(newText);
+                            $this.parent().parent().find('p').empty().append(decodeURIComponent(newText));
                         }
                     });
                 });
