@@ -25,6 +25,14 @@ function getJSONdata($query, $department)
         $id = $_GET["del"];
         exec("python ./pyCalculation/deleteResearchPaper.py $id $department");
     }
+//    $list = exec("python ./pyCalculation/searchResultsFromUser.py $query $department 2>&1", $output, $ret_code);
+
+//    echo "<pre>";
+//    foreach ($output as $val) {
+//        echo $val;
+//        echo "<br>";
+//    }
+//    echo "</pre>";
     return json_decode(exec("python ./pyCalculation/searchResultsFromUser.py $query $department"), true);
 }
 
@@ -57,7 +65,7 @@ function searchResults($department, $list, $totalResults = false)
             echo "<b>Title: </b>";
             if (isset($list['docs'][$x]['title'])) {
                 if ($list['docs'][$x]['title'] != null) {
-                    echo "<a href=''>" . $list['docs'][$x]["title"] . "</a>";
+                    echo "<a href=''><span align='justify' style='word-wrap: break-word;'>" . $list['docs'][$x]["title"] . "</span></a>";
                 }
             } else {
                 echo "No Title";

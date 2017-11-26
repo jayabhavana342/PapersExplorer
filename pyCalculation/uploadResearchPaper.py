@@ -8,8 +8,8 @@ department = sys.argv[2]
 
 
 # for testing purpose
-# query = 'Guiry2014.pdf'
-# department = 'IOT'
+# query = 'Band.pdf'
+# department = 'test'
 
 
 # Convert ASCII type data to string type data
@@ -75,6 +75,8 @@ def addDocument(directory, filename, core):
 
     child = title = authorNames = abstract = ''
 
+    print tree
+
     # title
     for elem in tree.iter():
         if 'titleStmt' in elem.tag:
@@ -87,21 +89,9 @@ def addDocument(directory, filename, core):
                 print 'Title: ', elem.text
                 title = elem.text
 
-    # abstract
-    for elem in tree.iter():
-        if 'profileDesc' in elem.tag:
-            child = elem
-            # print [el.tag for el in child.iter()]
-            break
-
-    for elem in child.iter():
-        if 'abstract' in elem.tag:
-            child = elem
-            for elem1 in child.iter():
-                if 'p' in elem1.tag:
-                    print 'Abstract: ', elem1.text
-                    abstract = elem1.text
-            break
+    run_curl(
+        "curl localhost:8983/solr/" + core + "/update?commit=true -H 'Content-type:application/json' --data-binary " + "\"[{'id':'" + getLastAddedDocumentID(
+            filename) + "','text':{'add':'Title => " + re.escape(convertASCIItoStr(title)) + "'}}]\"")
 
     # Authors
     for elem in tree.iter():
@@ -124,16 +114,68 @@ def addDocument(directory, filename, core):
                     authorNames = authorNames + elem.text + '; '
                     print "-----"
 
-    # Converting ASCII to Str and escaping all special charecters
-    title = re.escape(convertASCIItoStr(title))
-    authorNames = re.escape(convertASCIItoStr(authorNames))
-    abstract = re.escape(convertASCIItoStr(abstract))
+    run_curl(
+        "curl localhost:8983/solr/" + core + "/update?commit=true -H 'Content-type:application/json' --data-binary " + "\"[{'id':'" + getLastAddedDocumentID(
+            filename) + "','text':{'add':'Authors => " + re.escape(convertASCIItoStr(authorNames)) + "'}}]\"")
 
-    # print getLastAddedDocumentID(filename)
+    # abstract
+    for elem in tree.iter():
+        if 'profileDesc' in elem.tag:
+            child = elem
+            # print [el.tag for el in child.iter()]
+            break
+
+    for elem in child.iter():
+        if 'abstract' in elem.tag:
+            child = elem
+            for elem1 in child.iter():
+                if 'p' in elem1.tag:
+                    print 'Abstract: ', elem1.text
+                    abstract = elem1.text
+            break
 
     run_curl(
         "curl localhost:8983/solr/" + core + "/update?commit=true -H 'Content-type:application/json' --data-binary " + "\"[{'id':'" + getLastAddedDocumentID(
-            filename) + "','title':{'set':'" + title + "'},'author':{'set':'" + authorNames + "'},'abstract':{'set':'" + abstract + "'},'annotation':{'set':'Null'}}]\"")
+            filename) + "','text':{'add':'Abstract => " + re.escape(convertASCIItoStr(abstract)) + "'}}]\"")
+
+    # PDF text
+    for elem in tree.iter():
+        if 'body' in elem.tag:
+            child = elem
+            break
+
+    heading = ''
+    key = value = ''
+    i = 0
+
+    for elem in child.iter():
+        if 'div' in elem.tag:
+            value = ''
+            for el in elem.iter():
+                if 'head' in el.tag:
+                    value = convertASCIItoStr(el.text) + ' => '
+                if 'p' in el.tag:
+                    if convertASCIItoStr(el.text) != 'None':
+                        value += convertASCIItoStr(el.text) + ' '
+                if 'ref' in el.tag:
+                    value += convertASCIItoStr(el.tail) + ' '
+            key = key.encode('utf-8')
+            value = value.encode('utf-8')
+            value = re.escape(convertASCIItoStr(value))
+            run_curl(
+                "curl localhost:8983/solr/" + core + "/update?commit=true -H 'Content-type:application/json' --data-binary " + "\"[{'id':'" + getLastAddedDocumentID(
+                    filename) + "','text':{'add':'" + value + "'}}]\"")
+
+            heading += value + ' '
+            i = i + 1
+
+    # print heading
+
+    run_curl(
+        "curl localhost:8983/solr/" + core + "/update?commit=true -H 'Content-type:application/json' --data-binary " + "\"[{'id':'" + getLastAddedDocumentID(
+            filename) + "','title':{'set':'" + re.escape(convertASCIItoStr(title)) + "'},'author':{'set':'" + re.escape(
+            convertASCIItoStr(authorNames)) + "'},'abstract':{'set':'" + re.escape(
+            convertASCIItoStr(abstract)) + "'},'annotation':{'set':'Null'}}]\"")
 
 
 addDocument(pathToResearchPapersFolder + department + '/', query, department)

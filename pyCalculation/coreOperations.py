@@ -15,7 +15,7 @@ def coreOperations(operation, coreName):
         try:
             shutil.copytree(fullPathToSolrServerFolder + "configsets/_default/conf",
                             fullPathToSolrServerFolder + coreName + "/conf")
-        except OSError as exc:  # python >2.5
+        except OSError as exc:
             if exc.errno == errno.ENOTDIR:
                 shutil.copy(src, dst)
             else:
@@ -23,7 +23,7 @@ def coreOperations(operation, coreName):
 
         run_curl("curl \"" + importQuery + "admin/cores?action=CREATE&name=" + coreName + "\"")
 
-        # timestamp,abstract,author,annotation,summary,references,title
+        # timestamp,abstract,author,annotation,summary,references,title,text
         run_curl("curl -X POST -H 'Content-type:application/json' --data-binary \"{"
                  "\"add-field\":["
                  "{\"name\":\"timestamp\",\"type\":\"pdate\",\"indexed\":true,\"stored\":true,\"default\":\"NOW\",\"multiValued\":false},"
@@ -33,6 +33,7 @@ def coreOperations(operation, coreName):
                  "{\"name\":\"summary\",\"type\":\"string\",\"indexed\":true,\"stored\":true,\"docValues\":true},"
                  "{\"name\":\"references\",\"type\":\"string\",\"indexed\":true,\"stored\":true,\"docValues\":true},"
                  "{\"name\":\"title\",\"type\":\"string\",\"indexed\":true,\"stored\":true,\"docValues\":true}"
+                 "{\"name\":\"text\",\"type\":\"string\",\"indexed\":true,\"stored\":true,\"docValues\":true,\"multiValued\":true}"
                  "]}\" " + importQuery + coreName + "/schema  ")
 
         run_curl('curl "' + importQuery + 'admin/cores?action=RELOAD&core=' + coreName + '"')
