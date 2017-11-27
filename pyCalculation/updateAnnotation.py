@@ -1,6 +1,7 @@
 import re
 
 from settings import *
+import re
 
 # newAnnotation = 'hello'
 # id = 'ee2a25c7-5e9e-44de-8537-3c6b48215149'
@@ -9,6 +10,8 @@ from settings import *
 newAnnotation = sys.argv[1]
 id = sys.argv[2]
 core = sys.argv[3]
+
+print re.escape(newAnnotation)
 
 def addAnnotation(annotation, id, core):
     print annotation, id, core

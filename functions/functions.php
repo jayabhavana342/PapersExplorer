@@ -26,7 +26,7 @@ function getJSONdata($query, $department)
         exec("python ./pyCalculation/deleteResearchPaper.py $id $department");
     }
 //    $list = exec("python ./pyCalculation/searchResultsFromUser.py $query $department 2>&1", $output, $ret_code);
-
+//
 //    echo "<pre>";
 //    foreach ($output as $val) {
 //        echo $val;
