@@ -19,14 +19,18 @@ Below softwares should be installed to run the Project:
 
 ### Project Installation
 
-Change the directory names in settings.py under pyCalculation folder:
+Setup the project by changing:
+In settings.php under includes folder:
+![image](https://user-images.githubusercontent.com/26471348/33521270-2a608758-d793-11e7-8dd3-abb9c4c2d317.png)
 
-where 
+$target_dir - Enter the full path to the folder where you want to store the research papers.
+
+In settings.py under pyCalculation folder:
+![image](https://user-images.githubusercontent.com/26471348/33521239-37167d00-d792-11e7-8227-261c3b2a899b.png)
+
 * importQuery - Solr UI url.
-* fullPathToSolrBinFolder 
-    
-* fullPathToSolrServerFolder
-    
+* fullPathToSolrBinFolder - C:\solr-7.1.0\bin
+* fullPathToSolrServerFolder - C:\solr-7.1.0\server\solr
 * pathToResearchPapersFolder - Enter the full path to the folder where you want to store the research papers.
     
 #### Course
